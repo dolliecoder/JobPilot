@@ -90,18 +90,56 @@ export const jobApi = {
 
 // Application API
 export const applicationApi = {
-  list: async () => {
-    // TODO: Implement application listing
-    return []
+  list: async (): Promise<Application[]> => {
+    const response = await fetch(`${API_URL}/api/applications/`)
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch applications')
+    }
+    
+    const data = await response.json()
+    return data.applications
   },
   
-  create: async (resumeId: number, jobId: number) => {
-    // TODO: Implement application creation
-    console.log('Create application:', resumeId, jobId)
+  create: async (resumeId: number, jobId: number): Promise<Application> => {
+    const response = await fetch(`${API_URL}/api/applications/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resume_id: resumeId,
+        job_id: jobId,
+      }),
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to create application')
+    }
+    
+    return response.json()
   },
   
-  updateStatus: async (id: number, status: string) => {
-    // TODO: Implement status update
-    console.log('Update application status:', id, status)
+  updateStatus: async (id: number, status: string): Promise<Application> => {
+    const response = await fetch(`${API_URL}/api/applications/${id}/status?status=${encodeURIComponent(status)}`, {
+      method: 'PUT',
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to update application status')
+    }
+    
+    return response.json()
+  },
+  
+  delete: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_URL}/api/applications/${id}`, {
+      method: 'DELETE',
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete application')
+    }
   }
 }

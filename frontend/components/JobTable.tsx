@@ -1,13 +1,15 @@
 'use client'
 
 import { Job } from '@/types'
+import { useState } from 'react'
 
 interface JobTableProps {
   jobs: Job[]
   loading: boolean
+  onApply: (job: Job) => void
 }
 
-export default function JobTable({ jobs, loading }: JobTableProps) {
+export default function JobTable({ jobs, loading, onApply }: JobTableProps) {
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading jobs...</div>
   }
@@ -44,6 +46,9 @@ export default function JobTable({ jobs, loading }: JobTableProps) {
             <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>
               Job Type
             </th>
+            <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '2px solid #ddd' }}>
+              Action
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -67,6 +72,22 @@ export default function JobTable({ jobs, loading }: JobTableProps) {
                 }}>
                   {job.job_type}
                 </span>
+              </td>
+              <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                <button
+                  onClick={() => onApply(job)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  Apply
+                </button>
               </td>
             </tr>
           ))}

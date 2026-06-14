@@ -23,10 +23,17 @@ A full-stack application for managing job applications with AI-powered features.
 - Real-time filtering
 - Jobs for Java, Python, .NET, React, Full Stack developers
 
+✅ **Application Management**
+- Apply to jobs with uploaded resume
+- Select which resume to use for each application
+- View all applications in one place
+- Track application status (Applied, Interviewing, Accepted, Rejected)
+- Delete applications
+- Duplicate application prevention
+
 🔜 **Coming Soon**
-- Job application tracking
 - AI-powered resume matching
-- Application status management
+- Application analytics
 
 ## Project Structure
 
@@ -63,8 +70,25 @@ npm run dev
 ## Usage
 
 1. **Upload Resume**: Go to http://localhost:3000/upload
+   - Upload your PDF resume (max 5MB)
+   - View all uploaded resumes
+   - Delete resumes you no longer need
+
 2. **Browse Jobs**: Go to http://localhost:3000/jobs
-3. **Search Jobs**: Enter keywords like "python", "react", "java", ".net"
+   - View 15 sample job listings
+   - Search by keywords (e.g., "python", "react", "java", ".net")
+   - Filter by company, location, or job type
+
+3. **Apply to Jobs**: 
+   - Click "Apply" button on any job
+   - Select which resume to use
+   - Submit your application
+
+4. **Track Applications**: Go to http://localhost:3000/applications
+   - View all your applications
+   - See status (Applied, Interviewing, Accepted, Rejected)
+   - Track when you applied
+   - Delete applications if needed
 
 ## API Documentation
 

@@ -23,7 +23,9 @@ export interface Application {
   id: number
   resume_id: number
   job_id: number
-  match_score?: number
-  status: 'pending' | 'applied' | 'rejected'
+  status: string
   applied_at: string
+  job_title?: string
+  job_company?: string
+  resume_filename?: string
 }

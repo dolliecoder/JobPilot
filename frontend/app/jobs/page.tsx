@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import JobSearch from '@/components/JobSearch'
 import JobTable from '@/components/JobTable'
+import ApplyModal from '@/components/ApplyModal'
 import { jobApi } from '@/services/api'
 import { Job } from '@/types'
 
@@ -10,6 +11,7 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
 
   const fetchJobs = async (keyword: string = '') => {
     try {
@@ -32,6 +34,14 @@ export default function JobsPage() {
     fetchJobs(keyword)
   }
 
+  const handleApply = (job: Job) => {
+    setSelectedJob(job)
+  }
+
+  const handleCloseModal = () => {
+    setSelectedJob(null)
+  }
+
   return (
     <div>
       <h2>Job Listings</h2>
@@ -49,7 +59,11 @@ export default function JobsPage() {
         </div>
       )}
       
-      <JobTable jobs={jobs} loading={loading} />
+      <JobTable jobs={jobs} loading={loading} onApply={handleApply} />
+      
+      {selectedJob && (
+        <ApplyModal job={selectedJob} onClose={handleCloseModal} />
+      )}
     </div>
   )
 }

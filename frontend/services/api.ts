@@ -1,20 +1,45 @@
+import { Resume } from '@/types'
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 // Resume API
 export const resumeApi = {
-  upload: async (file: File) => {
-    // TODO: Implement resume upload
-    console.log('Upload resume:', file.name)
+  upload: async (file: File): Promise<Resume> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await fetch(`${API_URL}/api/resumes/upload`, {
+      method: 'POST',
+      body: formData,
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to upload resume')
+    }
+    
+    return response.json()
   },
   
-  list: async () => {
-    // TODO: Implement resume listing
-    return []
+  list: async (): Promise<Resume[]> => {
+    const response = await fetch(`${API_URL}/api/resumes/`)
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch resumes')
+    }
+    
+    const data = await response.json()
+    return data.resumes
   },
   
-  delete: async (id: number) => {
-    // TODO: Implement resume deletion
-    console.log('Delete resume:', id)
+  delete: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_URL}/api/resumes/${id}`, {
+      method: 'DELETE',
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete resume')
+    }
   }
 }
 

@@ -45,19 +45,46 @@ export const resumeApi = {
 
 // Job API
 export const jobApi = {
-  list: async () => {
-    // TODO: Implement job listing
-    return []
+  list: async (keyword?: string): Promise<Job[]> => {
+    const url = new URL(`${API_URL}/api/jobs/`)
+    if (keyword) {
+      url.searchParams.append('keyword', keyword)
+    }
+    
+    const response = await fetch(url.toString())
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch jobs')
+    }
+    
+    const data = await response.json()
+    return data.jobs
   },
   
-  get: async (id: number) => {
-    // TODO: Implement job retrieval
-    return null
+  get: async (id: number): Promise<Job> => {
+    const response = await fetch(`${API_URL}/api/jobs/${id}`)
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch job')
+    }
+    
+    return response.json()
   },
   
-  create: async (jobData: any) => {
-    // TODO: Implement job creation
-    console.log('Create job:', jobData)
+  create: async (jobData: Partial<Job>): Promise<Job> => {
+    const response = await fetch(`${API_URL}/api/jobs/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jobData),
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to create job')
+    }
+    
+    return response.json()
   }
 }
 

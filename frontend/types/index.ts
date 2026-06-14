@@ -12,9 +12,10 @@ export interface Job {
   id: number
   title: string
   company: string
+  location: string
+  job_type: string
   description: string
   requirements?: string
-  location?: string
   created_at: string
 }
 

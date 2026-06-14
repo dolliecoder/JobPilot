@@ -1,35 +1,85 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.database.db import get_db
+from app.models.job import Job
+from app.schemas.job import JobResponse, JobList, JobCreate
+from typing import Optional
 
 router = APIRouter()
 
-@router.post("/")
-async def create_job(db: Session = Depends(get_db)):
+@router.post("/", response_model=JobResponse)
+async def create_job(job: JobCreate, db: Session = Depends(get_db)):
     """Create a new job posting"""
-    # TODO: Implement job creation
-    return {"message": "Job creation endpoint"}
+    db_job = Job(
+        title=job.title,
+        company=job.company,
+        location=job.location,
+        job_type=job.job_type,
+        description=job.description,
+        requirements=job.requirements
+    )
+    db.add(db_job)
+    db.commit()
+    db.refresh(db_job)
+    return db_job
 
-@router.get("/")
-async def list_jobs(db: Session = Depends(get_db)):
-    """List all job postings"""
-    # TODO: Implement job listing
-    return {"jobs": []}
+@router.get("/", response_model=JobList)
+async def list_jobs(
+    keyword: Optional[str] = Query(None, description="Search keyword for title, company, or location"),
+    db: Session = Depends(get_db)
+):
+    """List all job postings with optional keyword search"""
+    query = db.query(Job)
+    
+    # Filter by keyword if provided
+    if keyword:
+        search_term = f"%{keyword}%"
+        query = query.filter(
+            or_(
+                Job.title.ilike(search_term),
+                Job.company.ilike(search_term),
+                Job.location.ilike(search_term),
+                Job.job_type.ilike(search_term)
+            )
+        )
+    
+    jobs = query.order_by(Job.created_at.desc()).all()
+    return {"jobs": jobs}
 
-@router.get("/{job_id}")
+@router.get("/{job_id}", response_model=JobResponse)
 async def get_job(job_id: int, db: Session = Depends(get_db)):
     """Get a specific job by ID"""
-    # TODO: Implement job retrieval
-    return {"job_id": job_id}
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
 
-@router.put("/{job_id}")
-async def update_job(job_id: int, db: Session = Depends(get_db)):
+@router.put("/{job_id}", response_model=JobResponse)
+async def update_job(job_id: int, job: JobCreate, db: Session = Depends(get_db)):
     """Update a job posting"""
-    # TODO: Implement job update
-    return {"message": f"Job {job_id} updated"}
+    db_job = db.query(Job).filter(Job.id == job_id).first()
+    if not db_job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    db_job.title = job.title
+    db_job.company = job.company
+    db_job.location = job.location
+    db_job.job_type = job.job_type
+    db_job.description = job.description
+    db_job.requirements = job.requirements
+    
+    db.commit()
+    db.refresh(db_job)
+    return db_job
 
 @router.delete("/{job_id}")
 async def delete_job(job_id: int, db: Session = Depends(get_db)):
     """Delete a job posting"""
-    # TODO: Implement job deletion
-    return {"message": f"Job {job_id} deleted"}
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    db.delete(job)
+    db.commit()
+    return {"message": f"Job '{job.title}' deleted successfully"}

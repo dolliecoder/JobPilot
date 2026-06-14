@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import JobSearch from '@/components/JobSearch'
 import JobTable from '@/components/JobTable'
 import ApplyModal from '@/components/ApplyModal'
@@ -12,6 +13,8 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   const fetchJobs = async (keyword: string = '') => {
     try {
@@ -29,6 +32,23 @@ export default function JobsPage() {
   useEffect(() => {
     fetchJobs()
   }, [])
+
+  // Check if returning from upload with a job to apply to
+  useEffect(() => {
+    const resumeUploaded = searchParams.get('resumeUploaded')
+    const jobIdParam = searchParams.get('jobId')
+    
+    if (resumeUploaded === 'true' && jobIdParam) {
+      const jobId = parseInt(jobIdParam)
+      // Find the job and reopen apply modal
+      const job = jobs.find(j => j.id === jobId)
+      if (job) {
+        setSelectedJob(job)
+        // Clean up URL parameters
+        router.replace('/jobs')
+      }
+    }
+  }, [searchParams, jobs, router])
 
   const handleSearch = (keyword: string) => {
     fetchJobs(keyword)
@@ -62,7 +82,7 @@ export default function JobsPage() {
       <JobTable jobs={jobs} loading={loading} onApply={handleApply} />
       
       {selectedJob && (
-        <ApplyModal job={selectedJob} onClose={handleCloseModal} />
+        <ApplyModal key={selectedJob.id} job={selectedJob} onClose={handleCloseModal} />
       )}
     </div>
   )

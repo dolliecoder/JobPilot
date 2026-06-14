@@ -17,19 +17,26 @@ export default function ApplyModal({ job, onClose }: ApplyModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  // Fetch resumes when modal mounts
   useEffect(() => {
     fetchResumes()
-  }, [])
+  }, []) // Empty dependency - only run on mount
 
   const fetchResumes = async () => {
     try {
+      setLoading(true)
+      setError(null)
       const data = await resumeApi.list()
       setResumes(data)
       if (data.length > 0) {
         setSelectedResumeId(data[0].id)
+      } else {
+        setSelectedResumeId(null)
       }
     } catch (err) {
       setError('Failed to load resumes')
+      setResumes([])
+      setSelectedResumeId(null)
     } finally {
       setLoading(false)
     }
@@ -97,7 +104,9 @@ export default function ApplyModal({ job, onClose }: ApplyModalProps) {
         ) : (
           <>
             {loading ? (
-              <p>Loading resumes...</p>
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p>Loading resumes...</p>
+              </div>
             ) : resumes.length === 0 ? (
               <div>
                 <p style={{ color: '#856404', backgroundColor: '#fff3cd', padding: '1rem', borderRadius: '4px' }}>
@@ -105,7 +114,10 @@ export default function ApplyModal({ job, onClose }: ApplyModalProps) {
                 </p>
                 <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
                   <button
-                    onClick={() => window.location.href = '/upload'}
+                    onClick={() => {
+                      // Save job ID in URL for return navigation
+                      window.location.href = `/upload?returnTo=jobs&jobId=${job.id}`
+                    }}
                     style={{
                       padding: '0.75rem 1.5rem',
                       backgroundColor: '#0070f3',
@@ -155,6 +167,9 @@ export default function ApplyModal({ job, onClose }: ApplyModalProps) {
                       </option>
                     ))}
                   </select>
+                  <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
+                    {resumes.length} resume{resumes.length !== 1 ? 's' : ''} available
+                  </p>
                 </div>
 
                 {error && (

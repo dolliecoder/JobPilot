@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'AI Job Application System',
@@ -13,16 +14,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header style={{ padding: '1rem', borderBottom: '1px solid #ccc' }}>
-          <h1>AI Job Application System</h1>
+        <header>
+          <h1>🎯 AI Job Application System</h1>
           <nav>
-            <a href="/" style={{ marginRight: '1rem' }}>Home</a>
-            <a href="/upload" style={{ marginRight: '1rem' }}>Upload Resume</a>
-            <a href="/jobs" style={{ marginRight: '1rem' }}>Jobs</a>
+            <a href="/">Home</a>
+            <a href="/upload">Upload Resume</a>
+            <a href="/jobs">Jobs</a>
             <a href="/applications">Applications</a>
           </nav>
         </header>
-        <main style={{ padding: '2rem' }}>
+        <main>
           {children}
         </main>
       </body>

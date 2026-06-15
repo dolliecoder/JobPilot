@@ -116,7 +116,9 @@ export default function ApplyModal({ job, onClose }: ApplyModalProps) {
                   <button
                     onClick={() => {
                       // Save job ID in URL for return navigation
-                      window.location.href = `/upload?returnTo=jobs&jobId=${job.id}`
+                      if (typeof window !== 'undefined') {
+                        window.location.href = `/upload?returnTo=jobs&jobId=${job.id}`
+                      }
                     }}
                     style={{
                       padding: '0.75rem 1.5rem',

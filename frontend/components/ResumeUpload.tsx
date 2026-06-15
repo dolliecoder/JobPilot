@@ -51,9 +51,12 @@ export default function ResumeUpload({ onUploadSuccess }: ResumeUploadProps) {
     try {
       await resumeApi.upload(file)
       
-      // Check if user is in the job application flow
-      const urlParams = new URLSearchParams(window.location.search)
-      const returnTo = urlParams.get('returnTo')
+      // Check if user is in the job application flow - use relative URL instead of window
+      let returnTo = null
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search)
+        returnTo = urlParams.get('returnTo')
+      }
       
       if (returnTo === 'jobs') {
         setMessage({ type: 'success', text: `Resume "${file.name}" uploaded successfully! Redirecting back to jobs...` })
@@ -63,9 +66,11 @@ export default function ResumeUpload({ onUploadSuccess }: ResumeUploadProps) {
       
       setFile(null)
       
-      // Reset file input
-      const fileInput = document.getElementById('resume-file-input') as HTMLInputElement
-      if (fileInput) fileInput.value = ''
+      // Reset file input - check if running in browser
+      if (typeof document !== 'undefined') {
+        const fileInput = document.getElementById('resume-file-input') as HTMLInputElement
+        if (fileInput) fileInput.value = ''
+      }
       
       // Callback to refresh list (and handle redirect if needed)
       if (onUploadSuccess) {

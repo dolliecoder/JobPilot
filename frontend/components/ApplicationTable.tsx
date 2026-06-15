@@ -34,7 +34,11 @@ export default function ApplicationTable({ applications, loading, onDelete }: Ap
         <p>No applications yet.</p>
         <p>Browse jobs and apply to get started!</p>
         <button
-          onClick={() => window.location.href = '/jobs'}
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.location.href = '/jobs'
+            }
+          }}
           style={{
             marginTop: '1rem',
             padding: '0.75rem 1.5rem',

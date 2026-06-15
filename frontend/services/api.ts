@@ -46,12 +46,9 @@ export const resumeApi = {
 // Job API
 export const jobApi = {
   list: async (keyword?: string): Promise<Job[]> => {
-    const url = new URL(`${API_URL}/api/jobs/`)
-    if (keyword) {
-      url.searchParams.append('keyword', keyword)
-    }
+    const url = keyword ? `${API_URL}/api/jobs/?keyword=${encodeURIComponent(keyword)}` : `${API_URL}/api/jobs/`
     
-    const response = await fetch(url.toString())
+    const response = await fetch(url)
     
     if (!response.ok) {
       throw new Error('Failed to fetch jobs')

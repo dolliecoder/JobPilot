@@ -1,17 +1,38 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import resumes, jobs, applications
+from app.database.db import engine, Base
+import os
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database tables on application startup"""
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database tables created successfully")
+    except Exception as e:
+        print(f"Warning: Database initialization error: {e}")
+    yield
+
 
 app = FastAPI(
     title="AI Job Application System",
     description="Backend API for AI-powered job application management",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
-# CORS configuration for Next.js frontend
+# CORS configuration for Next.js frontend (localhost for dev, Vercel for production)
+cors_origins = [
+    "http://localhost:3000",
+    "https://job-pilot-67bvb1nj-dollychahar27-6796s-projects.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

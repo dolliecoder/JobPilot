@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import resumes, jobs, applications
-from app.database.db import engine, Base
+from app.database.db import engine, Base, SessionLocal, init_db_tables, seed_jobs_if_empty
 import os
 
 # Configure logging to stdout so Render captures it
@@ -15,15 +15,24 @@ logging.basicConfig(
     force=True,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database tables on application startup"""
+    """Initialize database tables and seed data on application startup."""
     try:
-        Base.metadata.create_all(bind=engine)
-        print("Database tables created successfully")
+        tables = init_db_tables()
+        logger.info(f"Database initialized with tables: {tables}")
+
+        # Seed sample jobs if empty (using a dedicated session)
+        db = SessionLocal()
+        try:
+            seed_jobs_if_empty(db)
+        finally:
+            db.close()
     except Exception as e:
-        print(f"Warning: Database initialization error: {e}")
+        logger.error(f"Startup initialization failed: {type(e).__name__}: {e}")
     yield
 
 

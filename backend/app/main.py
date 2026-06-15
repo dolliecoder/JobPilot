@@ -1,9 +1,19 @@
+import logging
+import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import resumes, jobs, applications
 from app.database.db import engine, Base
 import os
+
+# Configure logging to stdout so Render captures it
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    stream=sys.stdout,
+    force=True,
+)
 
 
 @asynccontextmanager

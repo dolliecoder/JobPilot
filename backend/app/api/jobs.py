@@ -1,3 +1,5 @@
+import logging
+import traceback
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -5,6 +7,8 @@ from app.database.db import get_db
 from app.models.job import Job
 from app.schemas.job import JobResponse, JobList, JobCreate
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -30,22 +34,30 @@ async def list_jobs(
     db: Session = Depends(get_db)
 ):
     """List all job postings with optional keyword search"""
-    query = db.query(Job)
-    
-    # Filter by keyword if provided
-    if keyword:
-        search_term = f"%{keyword}%"
-        query = query.filter(
-            or_(
-                Job.title.ilike(search_term),
-                Job.company.ilike(search_term),
-                Job.location.ilike(search_term),
-                Job.job_type.ilike(search_term)
+    try:
+        logger.info("list_jobs called, executing query...")
+        query = db.query(Job)
+        logger.info(f"Query object created: {query}")
+        
+        # Filter by keyword if provided
+        if keyword:
+            search_term = f"%{keyword}%"
+            query = query.filter(
+                or_(
+                    Job.title.ilike(search_term),
+                    Job.company.ilike(search_term),
+                    Job.location.ilike(search_term),
+                    Job.job_type.ilike(search_term)
+                )
             )
-        )
-    
-    jobs = query.order_by(Job.created_at.desc()).all()
-    return {"jobs": jobs}
+        
+        jobs = query.order_by(Job.created_at.desc()).all()
+        logger.info(f"list_jobs succeeded, returned {len(jobs)} jobs")
+        return {"jobs": jobs}
+    except Exception as e:
+        logger.error(f"list_jobs FAILED: {type(e).__name__}: {e}")
+        logger.error(f"Traceback:\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {type(e).__name__}: {str(e)}")
 
 @router.get("/{job_id}", response_model=JobResponse)
 async def get_job(job_id: int, db: Session = Depends(get_db)):

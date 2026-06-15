@@ -46,7 +46,9 @@ app = FastAPI(
 # CORS configuration for Next.js frontend (localhost for dev, Vercel for production)
 cors_origins = [
     "http://localhost:3000",
-    "https://job-pilot-67bvb1nj-dollychahar27-6796s-projects.vercel.app",
+    "http://localhost:3001",
+
+    "https://job-pilot-git-main-dollychahar27-6796s-projects.vercel.app",
 ]
 
 app.add_middleware(
